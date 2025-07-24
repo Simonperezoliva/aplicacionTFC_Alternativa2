@@ -21,3 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "My Application Alt12"
 include(":app")
+include(":opencv")

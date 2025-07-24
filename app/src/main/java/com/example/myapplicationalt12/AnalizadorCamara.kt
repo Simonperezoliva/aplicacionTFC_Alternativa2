@@ -5,7 +5,6 @@ import android.graphics.RectF
 import android.util.Log
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
-import androidx.constraintlayout.core.motion.utils.Utils
 import org.opencv.android.Utils
 import org.opencv.core.Core
 import org.opencv.core.CvType
@@ -15,15 +14,15 @@ import java.nio.ByteBuffer
 
 class CameraAnalyzer(
     private val yoloDetector: YOLOv8nDetector,
-    private val ocrProcessor: ProcesadorOCR,
+    private val procesadorOCR: ProcesadorOCR,
     private val onBooksDetected: (List<YOLOv8nDetector.Book>) -> Unit) : ImageAnalysis.Analyzer {
-    private var frameCount = 0
-    private val frameSkip = 3 // Process every 3rd frame to reduce load
+    private var contadorFrames = 0
+    private val saltearFrames = 3 // se procesa cada 3er frame para mejorar performance en tiempo//EXPERIMENTAL--->PODRÍA QUITARSE
 
     override fun analyze(image: ImageProxy) {
         try {
-            frameCount++
-            if (frameCount % frameSkip != 0) {
+            contadorFrames++
+            if (contadorFrames % saltearFrames != 0) {
                 image.close()
                 return
             }
@@ -33,7 +32,7 @@ class CameraAnalyzer(
             // Only run OCR on the most confident detection to save processing
             books.maxByOrNull { it.confidence }?.let { book ->
                 val cropped = cropBookSpine(bitmap, book.boundingBox)
-                val text = ocrProcessor.extractText(cropped)
+                val text = procesadorOCR.extractText(cropped)
                 Log.d("Detector de Libros", "Texto Detectado: $text")
             }
 
